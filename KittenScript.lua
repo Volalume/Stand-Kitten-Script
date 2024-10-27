@@ -3,11 +3,25 @@
         Original Developer: @icedoomfist / https://github.com/IceDoomfist
         MEOW
     ]]--
+
+    --[[
+    TODO: 오비탈 / 기타 등등 글로벌 변수화
+          SKR 기능 이전
+          설정저장
+          돈추가 카운터 (오류발생시 추가 X 포함? - Errorhash이용)
+          메뉴 div 추가 및 탭 이름들 바꾸기
+          번역기능 추가
+    ]]--
+
+    --[[
+    V3 변경사항:
+    Earn Orbital - 루프 오류 해결
+    ]]--
 --------
 
 main_var = {
     SCRIPT_NAME = "Mewo",
-    SCRIPT_VER = 1,
+    SCRIPT_VER = 3,
 
     delay_Type = 1,
     delay_sec = {
@@ -41,6 +55,8 @@ labels = {
     main_root = "Meow",
         
     Money_labels = {
+        money_div = "Make Money",
+
         money_tab = "Make Money",
         instant_tab = "Instant Money",
         safe_tab = "Safe Money",
@@ -57,6 +73,8 @@ labels = {
 
     Misc_labels = {
         misc_tab = "Misc",
+
+        misc_div = "Misc",
 
         trans_atskp_menu = "Auto Skip Transaction Error",
         trans_atskp_desc = "It won't prevent errors, but it will automatically skip the error screen.\nthanks to jinx"
@@ -130,6 +148,14 @@ global_var = {
         chips = 1963515,
     },
 
+    ezmoney_hash = {
+        category = 1474183246,
+
+        bet = 2896648878,
+        obj = 0x615762F1,
+        tiunk = 0x610F9AB4
+    },
+
     safe_loop = {
         nightclub_safe = 262145,
     }
@@ -169,7 +195,7 @@ function add_mp_index(stat)
 end
 
 function tp_coords(x, y, z)
-    PED.SET_PED_COORDS_KEEP_VEHICLE(players.user_ped(), x, y, z)
+    PED.SET_PED_COORDS_KEEP_toggle_loop1EHICLE(players.user_ped(), x, y, z)
 end
 
 function do_ezmoney(hash, amount)
@@ -187,6 +213,8 @@ menu.divider(menu.my_root(), labels.main_root)
 
 ---#Menu
 Money = menu.list(menu.my_root(), labels.Money_labels.money_tab, {"makemoney"}, "", function(); end)
+
+menu.divider(Money, labels.Money_labels.money_div)
 Money_instant = menu.list(Money, labels.Money_labels.instant_tab, {"instantmoney"}, "", function(); end)
 Money_safe = menu.list(Money, labels.Money_labels.safe_tab, {"safemoney"}, "", function(); end)
 Money_custom = menu.list(Money, labels.Money_labels.custom_tab, {"custommoney"}, "", function(); end)
@@ -197,26 +225,26 @@ Setting = menu.list(menu.my_root(), labels.Setting_labels.setting_tab, {"setting
 --Delay = menu.list(Setting, "Delay Setting", {"delaysetting"}, "", function(); end) / Line 133
 
 ---#Instant Money
-menu.toggle(Money_instant, labels.Money_labels.orbital_menu, {"orbtloop"}, labels.Money_labels.orbital_desc, function() --TODO: 오비탈 루프 종료시 yield로 인한 코드 밀림현상 고치기 / 스크립트 실행시 오비탈 삑사리 현상
+menu.toggle_loop(Money_instant, labels.Money_labels.orbital_menu, {"orbtloop"}, labels.Money_labels.orbital_desc, function() --TODO: Fixed on V3
     main_var.loop_flag.is_loop_running = true
     labels.Watermark_label.loop_wlf.running_name = labels.Money_labels.orbital_menu
 
-    set_global_i(1962237, 1)
+    set_global_i(global_var.instant.orbital, 1)
     main_var.orbital_flag.waiting_500 = true
     util.yield(main_var.delay_sec.delay_1)
     main_var.orbital_flag.waiting_500 = false
 
-    set_global_i(1962237, 0)
+    set_global_i(global_var.instant.orbital, 0)
     main_var.orbital_flag.waiting_11500 = true;
     util.yield(main_var.delay_sec.delay_1 + main_var.delay_sec.delay_2 + main_var.delay_sec.delay_3)
     main_var.orbital_flag.waiting_11500 = false;
 
-    set_global_i(1962237, 2)
+    set_global_i(global_var.instant.orbital, 2)
     main_var.orbital_flag.waiting_500 = true
     util.yield(main_var.delay_sec.delay_1)
     main_var.orbital_flag.waiting_500 = false
 
-    set_global_i(1962237, 0)
+    set_global_i(global_var.instant.orbital, 0)
     main_var.orbital_flag.waiting_11500 = true;
     util.yield(main_var.delay_sec.delay_1 + main_var.delay_sec.delay_2 + main_var.delay_sec.delay_3)
     main_var.orbital_flag.waiting_11500 = false;
@@ -228,73 +256,75 @@ end, function()
     main_var.loop_flag.is_loop_running = false;
     labels.Watermark_label.loop_wlf.running_name = ""
 
-    do_ezmoney(0x610F9AB4, 0)
+    do_ezmoney(global_var.ezmoney_hash.tiunk, 0)
 end)
 
 menu.toggle_loop(Money_instant, labels.Money_labels.ez680k_menu, {"680kloop"}, labels.Money_labels.ez_desc, function()
     main_var.loop_flag.is_loop_running = true
     labels.Watermark_label.loop_wlf.running_name = labels.Money_labels.ez680k_menu
 
-    price = NETSHOPPING.NET_GAMESERVER_GET_PRICE(2896648878, 1474183246, true)
+    price = NETSHOPPING.NET_GAMESERVER_GET_PRICE(global_var.ezmoney_hash.bet, global_var.ezmoney_hash.category, true)
     if main_var.delay_Type == 1 then
-        do_ezmoney(2896648878, price)
+        do_ezmoney(global_var.ezmoney_hash.bet, price)
         util.yield(main_var.delay_sec.delay_1)
     elseif main_var.delay_Type == 2 then
-        do_ezmoney(2896648878, price)
+        do_ezmoney(global_var.ezmoney_hash.bet, price)
         util.yield(main_var.delay_sec.delay_1)
     else
-        do_ezmoney(2896648878, price)
+        do_ezmoney(global_var.ezmoney_hash.bet, price)
     end
 end, function()
     main_var.loop_flag.is_loop_running = false;
     labels.Watermark_label.loop_wlf.running_name = ""
-    do_ezmoney(0x610F9AB4, 0)
+    do_ezmoney(global_var.ezmoney_hash.tiunk, 0)
 end)
 
 menu.toggle_loop(Money_instant, labels.Money_labels.ez180k_menu, {"180kloop"}, labels.Money_labels.ez_desc, function()
     main_var.loop_flag.is_loop_running = true
     labels.Watermark_label.loop_wlf.running_name = labels.Money_labels.ez180k_menu
 
-    price = NETSHOPPING.NET_GAMESERVER_GET_PRICE(0x615762F1, 1474183246, true)
+    price = NETSHOPPING.NET_GAMESERVER_GET_PRICE(global_var.ezmoney_hash.obj, global_var.ezmoney_hash.category, true)
     if main_var.delay_Type == 1 then
-        do_ezmoney(0x615762F1, price)
+        do_ezmoney(global_var.ezmoney_hash.obj, price)
         util.yield(main_var.delay_sec.delay_1)
     elseif main_var.delay_Type == 2 then
-        do_ezmoney(0x615762F1, price)
+        do_ezmoney(global_var.ezmoney_hash.obj, price)
         util.yield(main_var.delay_sec.delay_1)
     else
-        do_ezmoney(0x615762F1, price)
+        do_ezmoney(global_var.ezmoney_hash.obj, price)
     end
 end, function()
     main_var.loop_flag.is_loop_running = false;
     labels.Watermark_label.loop_wlf.running_name = ""
-    do_ezmoney(0x610F9AB4, 0)
+    do_ezmoney(global_var.ezmoney_hash.tiunk, 0)
 end)
 
 menu.toggle_loop(Money_instant, labels.Money_labels.ez50k_menu, {"50kloop"}, labels.Money_labels.ez_desc, function()
     main_var.loop_flag.is_loop_running = true
     labels.Watermark_label.loop_wlf.running_name = labels.Money_labels.ez50k_menu
 
-    price = NETSHOPPING.NET_GAMESERVER_GET_PRICE(0x610F9AB4, 1474183246, true)
+    price = NETSHOPPING.NET_GAMESERVER_GET_PRICE(global_var.ezmoney_hash.tiunk, global_var.ezmoney_hash.category, true)
     if main_var.delay_Type == 1 then
-        do_ezmoney(0x610F9AB4, price)
+        do_ezmoney(global_var.ezmoney_hash.tiunk, price)
         util.yield(main_var.delay_sec.delay_1)
     elseif main_var.delay_Type == 2 then
-        do_ezmoney(0x610F9AB4, price)
+        do_ezmoney(global_var.ezmoney_hash.tiunk, price)
         util.yield(main_var.delay_sec.delay_1)
     else
-        do_ezmoney(0x610F9AB4, price)
+        do_ezmoney(global_var.ezmoney_hash.tiunk, price)
     end
 end, function()
     main_var.loop_flag.is_loop_running = false;
     labels.Watermark_label.loop_wlf.running_name = ""
-    do_ezmoney(0x610F9AB4, 0)
+    do_ezmoney(global_var.ezmoney_hash.tiunk, 0)
 end)
 
 ---#Safe Money
 
 
 ---#Misc
+menu.divider(Misc, labels.Misc_labels.misc_div)
+
 menu.toggle_loop(Misc, labels.Misc_labels.trans_atskp_menu, {"autoskiptans"}, labels.Misc_labels.trans_atskp_desc, function() --thx for jinx
     main_var.loop_flag.is_autoskip_running = true
     local msgHash = HUD.GET_WARNING_SCREEN_MESSAGE_HASH()
