@@ -4,10 +4,8 @@
         MEOW
     ]]--
     --[[
-    V4 변경사항:
-       얻는 금액 제한 추가
-       딜레이 간편화
-       간편한 언락, 레벨변경 추가
+    V5 변경사항:
+        Updated -> GTAV Build b.3407 (Online 1.70)
     ]]--
 --------
 
@@ -172,9 +170,9 @@ labels = {
 global_var = {
     
     instant = {
-        ezmoney = 4537311,
-        orbital = 1962237,
-        chips = 1963515,
+        ezmoney = 4537945, --3407
+        orbital = 1962995, --3407
+        chips = 1963515, --outdated (shit)
     },
 
     ezmoney_hash = {
@@ -186,7 +184,7 @@ global_var = {
     },
 
     safe_loop = {
-        nightclub_safe = 262145,
+        nightclub_safe = 262145, --outdated (detected?)
     }
 }
 
