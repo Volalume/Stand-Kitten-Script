@@ -4,14 +4,16 @@
         MEOW
     ]]--
     --[[
-    V5 변경사항:
-        Updated -> GTAV Build b.3407 (Online 1.70)
+    V5-a 변경사항:
+        (1.70-b.3411 업데이트 무시)
+        Added -> 오프닝 크레딧 일부 수정
+        Fixed -> Limit 디버그 텍스트 표시가 작동하지 않던 오류 해결
     ]]--
 --------
 
 main_var = {
     SCRIPT_NAME = "Kitten",
-    SCRIPT_VER = 4,
+    SCRIPT_VER = "5-a",
 
     delay_Type = 1,
     delay_sec = {
@@ -137,6 +139,7 @@ labels = {
         none = "",
         name = "Kitten Script".." v"..main_var.SCRIPT_VER,
         credit = "@volalume @icedoomfist",
+        github_dir = "~y~https://github.com/Volalume/Stand-Kitten-Script",
 
         orbital_wlf = {
             flag_500 = "orbital_flag: waiting_delay_1",
@@ -188,6 +191,11 @@ global_var = {
     }
 }
 
+util.create_tick_handler(function() -- refresh limit var
+    labels.Watermark_label.limit_wlf.limited_earn = "Limited Earn: "..main_var.limit_flag.limit_selection
+    labels.Watermark_label.limit_wlf.your_earned = "You Earned: "..main_var.limit_flag.got
+    labels.Watermark_label.limit_wlf.is_limit_wlf = "Limit: "..main_var.limit_flag.is_limit
+end)
 ---
 
 util.require_natives(1681379138)
@@ -390,6 +398,7 @@ menu.toggle_loop(Money, labels.Money_labels.ez50k_menu, {"50kloop"}, labels.Mone
         else
             do_ezmoney(global_var.ezmoney_hash.tiunk, price)
             main_var.limit_flag.got = main_var.limit_flag.got + price
+            util.toast(main_var.limit_flag.got)
         end
         util.yield(main_var.delay_sec.delay_1)
     elseif main_var.delay_Type == 2 then
@@ -517,6 +526,7 @@ util.show_corner_help(labels.Watermark_label.credit)
 util.yield(1000)
 util.show_corner_help(labels.Watermark_label.name)
 util.yield(1000)
+util.show_corner_help(labels.Watermark_label.github_dir)
 
 util.create_tick_handler(function()
     util.draw_debug_text(labels.Watermark_label.none)
@@ -552,6 +562,8 @@ util.create_tick_handler(function()
         util.draw_debug_text(labels.Watermark_label.limit_wlf.limited_earn)
         util.draw_debug_text(labels.Watermark_label.limit_wlf.your_earned)
         util.draw_debug_text(labels.Watermark_label.limit_wlf.is_limit_wlf)
+
+        util.draw_debug_text(labels.Watermark_label.none)
     end
 end)
 
